@@ -1,5 +1,6 @@
 import argparse
-import csv
+
+import pandas as pd
 
 from src.config import OUTPUT_DIR, ROW_COUNTS, SCHEMA_PATH
 from src.generators.brand_generator import generate_brands
@@ -11,17 +12,13 @@ from src.generators.seller_generator import generate_sellers
 from src.utils.faker_utils import ensure_directory, seed_everything
 
 
-def export_rows(rows: list[dict], table_name: str) -> None:
+def export_dataframe(dataframe: pd.DataFrame, table_name: str) -> None:
     csv_path = OUTPUT_DIR / f"{table_name}.csv"
-    if not rows:
+    if dataframe.empty:
         raise ValueError(f"No rows generated for {table_name}")
 
-    with csv_path.open("w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=list(rows[0].keys()))
-        writer.writeheader()
-        writer.writerows(rows)
-
-    print(f"Generated {len(rows):,} rows: {csv_path}")
+    dataframe.to_csv(csv_path, index=False)
+    print(f"Generated {len(dataframe):,} rows: {csv_path}")
 
 
 def generate_all_csv_files() -> None:
@@ -39,12 +36,12 @@ def generate_all_csv_files() -> None:
         ROW_COUNTS["promotion_product"],
     )
 
-    export_rows(brands, "brand")
-    export_rows(categories, "category")
-    export_rows(sellers, "seller")
-    export_rows(products, "product")
-    export_rows(promotions, "promotion")
-    export_rows(promotion_products, "promotion_product")
+    export_dataframe(brands, "brand")
+    export_dataframe(categories, "category")
+    export_dataframe(sellers, "seller")
+    export_dataframe(products, "product")
+    export_dataframe(promotions, "promotion")
+    export_dataframe(promotion_products, "promotion_product")
 
 
 def load_to_database(reset_db: bool = False) -> None:

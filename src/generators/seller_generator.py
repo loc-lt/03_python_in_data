@@ -1,4 +1,5 @@
-import random
+import numpy as np
+import pandas as pd
 
 from src.utils.faker_utils import build_faker
 
@@ -6,20 +7,15 @@ from src.utils.faker_utils import build_faker
 SELLER_TYPES = ["Official", "Marketplace"]
 
 
-def generate_sellers(row_count: int = 25) -> list[dict]:
+def generate_sellers(row_count: int = 25) -> pd.DataFrame:
     fake = build_faker()
-    rows = []
+    data = {
+        "seller_id": [seller_id for seller_id in range(1, row_count + 1)],
+        "seller_name": [f"{fake.company()} VN" for _ in range(row_count)],
+        "join_date": [fake.date_between(start_date="-5y", end_date="today") for _ in range(row_count)],
+        "seller_type": np.random.choice(SELLER_TYPES, size=row_count, p=[0.3, 0.7]),
+        "rating": np.round(np.random.uniform(3.0, 5.0, size=row_count), 1),
+        "country": ["Vietnam" for _ in range(row_count)],
+    }
 
-    for seller_id in range(1, row_count + 1):
-        rows.append(
-            {
-                "seller_id": seller_id,
-                "seller_name": f"{fake.company()} VN",
-                "join_date": fake.date_between(start_date="-5y", end_date="today"),
-                "seller_type": random.choices(SELLER_TYPES, weights=[0.3, 0.7], k=1)[0],
-                "rating": round(random.uniform(3.0, 5.0), 1),
-                "country": "Vietnam",
-            }
-        )
-
-    return rows
+    return pd.DataFrame(data)

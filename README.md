@@ -1,6 +1,6 @@
 # Project 03 - Python In Data
 
-Generate synthetic data for an E-commerce OLTP system using Python and Faker, export it to CSV, and optionally load it into PostgreSQL.
+Generate synthetic data for an E-commerce OLTP system using Python, Faker, pandas, and numpy. The pipeline exports data to CSV and can optionally load it into PostgreSQL.
 
 ## Project Structure
 

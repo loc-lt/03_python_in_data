@@ -1,16 +1,18 @@
 import random
 
+import pandas as pd
+
 from src.utils.faker_utils import build_faker
 
 
 def generate_promotion_products(
-    promotions: list[dict],
-    products: list[dict],
+    promotions: pd.DataFrame,
+    products: pd.DataFrame,
     row_count: int = 100,
-) -> list[dict]:
+) -> pd.DataFrame:
     fake = build_faker()
-    promotion_ids = [row["promotion_id"] for row in promotions]
-    product_ids = [row["product_id"] for row in products]
+    promotion_ids = promotions["promotion_id"].to_list()
+    product_ids = products["product_id"].to_list()
     max_unique_pairs = len(promotion_ids) * len(product_ids)
 
     if row_count > max_unique_pairs:
@@ -30,4 +32,4 @@ def generate_promotion_products(
         for promo_product_id, (promotion_id, product_id) in enumerate(sorted(pairs), start=1)
     ]
 
-    return rows
+    return pd.DataFrame(rows)

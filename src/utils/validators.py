@@ -1,3 +1,4 @@
+import pandas as pd
 from sqlalchemy import text
 from sqlalchemy.engine import Engine
 
@@ -50,24 +51,19 @@ VALIDATION_QUERIES = {
 }
 
 
-def run_validations(engine: Engine) -> dict[str, list[dict]]:
+def run_validations(engine: Engine) -> dict[str, pd.DataFrame]:
     results = {}
     with engine.connect() as connection:
         for name, query in VALIDATION_QUERIES.items():
-            rows = connection.execute(text(query)).mappings().all()
-            results[name] = [dict(row) for row in rows]
+            results[name] = pd.read_sql(text(query), connection)
     return results
 
 
-def print_validation_results(results: dict[str, list[dict]]) -> None:
-    for name, rows in results.items():
+def print_validation_results(results: dict[str, pd.DataFrame]) -> None:
+    for name, dataframe in results.items():
         print(f"\n{name}")
-        if not rows:
+        if dataframe.empty:
             print("(no rows)")
             continue
 
-        columns = list(rows[0].keys())
-        print(" | ".join(columns))
-        print("-" * (len(" | ".join(columns))))
-        for row in rows:
-            print(" | ".join(str(row[column]) for column in columns))
+        print(dataframe.to_string(index=False))

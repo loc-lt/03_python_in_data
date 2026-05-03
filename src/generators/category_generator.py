@@ -1,3 +1,5 @@
+import pandas as pd
+
 from src.utils.faker_utils import build_faker
 
 
@@ -15,16 +17,14 @@ CATEGORY_ROWS = [
 ]
 
 
-def generate_categories(row_count: int = 10) -> list[dict]:
+def generate_categories(row_count: int = 10) -> pd.DataFrame:
     fake = build_faker()
-    rows = []
+    rows = [
+        {
+            **category,
+            "created_at": fake.date_time_this_year(),
+        }
+        for category in CATEGORY_ROWS[:row_count]
+    ]
 
-    for category in CATEGORY_ROWS[:row_count]:
-        rows.append(
-            {
-                **category,
-                "created_at": fake.date_time_this_year(),
-            }
-        )
-
-    return rows
+    return pd.DataFrame(rows)
