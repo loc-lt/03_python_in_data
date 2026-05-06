@@ -51,12 +51,6 @@ If you also want to load data into PostgreSQL, install the database dependencies
 pip install -r requirements-db.txt
 ```
 
-Create PostgreSQL database:
-
-```sql
-CREATE DATABASE ecommerce_project03;
-```
-
 Update `.env` if your PostgreSQL username or password is different:
 
 ```env
@@ -67,6 +61,8 @@ DB_USER=postgres
 DB_PASSWORD=postgres
 RANDOM_SEED=42
 ```
+
+When you run with `--load`, the script will connect to the default `postgres` database first and create `ecommerce_project03` automatically if it does not exist.
 
 ## Usage
 

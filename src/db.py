@@ -1,9 +1,10 @@
 from pathlib import Path
+import re
 
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Engine, make_url
 
-from src.config import DATABASE_URL
+from src.config import DATABASE_URL, DB_NAME
 
 
 TABLE_LOAD_ORDER = [
@@ -25,6 +26,26 @@ TABLE_DROP_ORDER = [
     "category",
     "brand",
 ]
+
+
+def ensure_database_exists() -> None:
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", DB_NAME):
+        raise ValueError("DB_NAME must contain only letters, numbers, and underscores")
+
+    postgres_url = make_url(DATABASE_URL).set(database="postgres")
+    postgres_engine = create_engine(postgres_url, isolation_level="AUTOCOMMIT")
+
+    with postgres_engine.connect() as connection:
+        database_exists = connection.execute(
+            text("SELECT 1 FROM pg_database WHERE datname = :database_name"),
+            {"database_name": DB_NAME},
+        ).scalar()
+
+        if not database_exists:
+            connection.execute(text(f'CREATE DATABASE "{DB_NAME}"'))
+            print(f"Created database: {DB_NAME}")
+
+    postgres_engine.dispose()
 
 
 def get_engine() -> Engine:

@@ -45,10 +45,11 @@ def generate_all_csv_files() -> None:
 
 
 def load_to_database(reset_db: bool = False) -> None:
-    from src.db import get_engine, reset_database, run_schema
+    from src.db import ensure_database_exists, get_engine, reset_database, run_schema
     from src.loaders.insert_data import load_csv_files
     from src.utils.validators import print_validation_results, run_validations
 
+    ensure_database_exists()
     engine = get_engine()
 
     if reset_db:
