@@ -1,4 +1,0 @@
-faker
-numpy
-pandas
-python-dotenv

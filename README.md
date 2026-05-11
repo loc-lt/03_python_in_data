@@ -15,7 +15,7 @@ project03/
 │   ├── loaders/
 │   └── utils/
 ├── output/
-├── requirements.txt
+├── pyproject.toml
 ├── .env
 └── README.md
 ```
@@ -35,21 +35,15 @@ The default generator creates:
 
 `orders` and `order_item` are included in `src/schema.sql`, but this project does not generate their very large datasets yet because the assignment notes that they belong to the next SQL project.
 
-## Setup
+## Setup (Poetry)
 
-Create a virtual environment and install dependencies:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-If you also want to load data into PostgreSQL, install the database dependencies:
+Install dependencies with Poetry:
 
 ```bash
-pip install -r requirements-db.txt
+poetry install
 ```
+
+This installs both generation and PostgreSQL loading dependencies.
 
 Update `.env` if your PostgreSQL username or password is different:
 
@@ -69,20 +63,35 @@ When you run with `--load`, the script will connect to the default `postgres` da
 Generate CSV files only:
 
 ```bash
-python3 -m src.main
+poetry run python -m src.main
 ```
 
 Generate CSV files, recreate PostgreSQL tables, load data, and run validations:
 
 ```bash
-python3 -m src.main --load --reset-db
+poetry run python -m src.main --load --reset-db
 ```
 
 Reuse existing CSV files and load them into PostgreSQL:
 
 ```bash
-python3 -m src.main --skip-generate --load --reset-db
+poetry run python -m src.main --skip-generate --load --reset-db
 ```
+
+## Troubleshooting PostgreSQL (`Connection refused`)
+
+If `--load` fails with `connection to server at "localhost" ... port 5432 failed: Connection refused`, nothing is accepting TCP connections on that host/port. The Python script is fine; PostgreSQL must be running and listening.
+
+**Windows**
+
+1. Start the service (name varies by installer), e.g. in **PowerShell (Admin)**:
+   - `Get-Service *postgres*`
+   - `Start-Service postgresql-x64-16` (replace with your service name)
+2. Or open **Services** (`services.msc`), find **postgresql**, set **Startup type** to Automatic, click **Start**.
+3. Confirm the port in `postgresql.conf` is `5432` (or set `DB_PORT` in `.env` to match).
+4. If you use **Docker**, PostgreSQL may be on another port (e.g. `5433`); set `DB_HOST` / `DB_PORT` in `.env` accordingly.
+
+Quick port check (PowerShell): `Test-NetConnection -ComputerName 127.0.0.1 -Port 5432` — `TcpTestSucceeded` should be `True` before rerunning `poetry run python -m src.main --load --reset-db`.
 
 ## Validation Checks
 
